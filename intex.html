@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Редактор: Раскраска по ответам (Genially)</title>
+</head>
+<body style="margin:0;background:#0b0f14;">
+<div id="FX_ROOT">
+  <style>
+    :root{
+      --bg: #0b0f14;
+      --panel: rgba(255,255,255,0.06);
+      --panel2: rgba(0,0,0,0.28);
+      --line: rgba(255,255,255,0.12);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --ok: rgba(120,240,190,0.95);
+      --err: rgba(255,120,120,0.92);
+    }
+    #FX_ROOT{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+    }
+    #FX_EDITOR{
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 12px;
+      padding: 12px;
+      box-sizing: border-box;
+      background: var(--bg);
+    }
+
+    .fx-card{
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .fx-left{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+    }
+    .fx-title{
+      font-weight: 950;
+      font-size: 16px;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .fx-sub{
+      margin-top:-6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .fx-row{ display:flex; gap:10px; flex-wrap: wrap; align-items: center; }
+    .fx-col{ display:flex; flex-direction: column; gap:6px; }
+    label{ font-size: 12px; color: var(--muted); }
+    input[type="text"], input[type="number"], textarea, select{
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      outline: none;
+      font-size: 13px;
+    }
+    textarea{ min-height: 72px; resize: vertical; }
+    input[type="file"]{ color: var(--muted); font-size: 12px; }
+    input[type="color"]{
+      width: 44px; height: 40px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.22);
+      padding: 0;
+    }
+    .fx-btn{
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.92);
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .2px;
+      user-select: none;
+      transition: transform 120ms ease, background 120ms ease;
+      white-space: nowrap;
+    }
+    .fx-btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.10); }
+    .fx-btn:active{ transform: translateY(0px) scale(0.99); }
+    .fx-btn.primary{
+      background: rgba(120,240,190,0.18);
+      border-color: rgba(120,240,190,0.30);
+      box-shadow: 0 0 14px rgba(120,240,190,0.20);
+    }
+    .fx-btn.danger{
+      background: rgba(255,120,120,0.16);
+      border-color: rgba(255,120,120,0.28);
+      box-shadow: 0 0 14px rgba(255,120,120,0.16);
+    }
+
+    .fx-hint{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .fx-feedback{
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+    .fx-feedback.ok{ border-color: rgba(120,240,190,0.35); box-shadow: 0 0 0 2px rgba(120,240,190,0.12) inset; }
+    .fx-feedback.err{ border-color: rgba(255,120,120,0.35); box-shadow: 0 0 0 2px rgba(255,120,120,0.12) inset; }
+    .fx-feedback small{ color: var(--muted); font-size: 12px; }
+
+    .fx-list{
+      max-height: 220px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+    }
+    .fx-item{
+      display:grid;
+      grid-template-columns: 18px 1fr auto;
+      gap: 10px;
+      align-items:center;
+      padding: 10px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      user-select:none;
+    }
+    .fx-item:first-child{ border-top:none; }
+    .fx-dot{
+      width: 14px; height: 14px; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+    .fx-item strong{ font-size: 12px; }
+    .fx-item span{ font-size: 12px; color: var(--muted); }
+    .fx-pill{
+      font-size: 11px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.86);
+      white-space: nowrap;
+    }
+
+    .fx-right{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px;
+    }
+    .fx-stage{
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 22px 22px;
+
+      flex: 1 1 auto;
+      min-height: 360px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.10);
+      position: relative;
+      overflow: hidden;
+    }
+    canvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+    }
+    .fx-overlay-ui{
+      position:absolute;
+      left:12px; top:12px;
+      display:flex;
+      gap:8px;
+      flex-wrap: wrap;
+      align-items:center;
+      padding: 8px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.38);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 3;
+    }
+    .fx-kbd{
+      font-size: 11px;
+      color: rgba(255,255,255,0.80);
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      white-space: nowrap;
+    }
+    .fx-mini{
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.26);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    @media (max-width: 980px){
+      #FX_EDITOR{ grid-template-columns: 1fr; }
+      .fx-stage{
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 22px 22px;
+ min-height: 420px; }
+    }
+  </style>
+
+  <div id="FX_EDITOR">
+    <!-- LEFT -->
+    <div class="fx-card fx-left">
+      <div>
+        <div class="fx-title">
+          <span>Редактор “раскраска по ответам”</span>
+          <span class="fx-mini" id="FX_COUNTS">0 областей</span>
+        </div>
+        <div class="fx-sub">Загрузи картинку → обводи области → задай “ответ-номер”, цвет и задание → экспортируй HTML для Genially.</div>
+      </div>
+
+      <div class="fx-card" style="padding:12px;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.10);">
+        <div class="fx-row" style="align-items:flex-end;">
+          <div class="fx-col" style="flex:1;">
+            <label>1) Картинка (PNG/JPG/SVG)</label>
+            <input id="FX_FILE" type="file" accept="image/*,.svg" />
+          </div>
+          <button class="fx-btn" id="FX_FIT">Подогнать</button>
+        </div>
+        <div class="fx-row">
+          <div class="fx-col" style="flex:1;">
+            <label>Прозрачность картинки</label>
+            <input id="FX_IMG_OP" type="number" min="0" max="1" step="0.05" value="1" />
+          </div>
+          <div class="fx-col" style="flex:1;">
+            <label>Показывать числа на областях</label>
+            <select id="FX_SHOW_NUMS">
+              <option value="1" selected>Да</option>
+              <option value="0">Нет</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="fx-card" style="padding:12px;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.10);">
+        <div class="fx-row">
+          <div class="fx-col" style="flex:1;">
+            <label>2) Ответ-номер (что написано на области)</label>
+            <input id="FX_NUM" type="text" placeholder="Например: 12" />
+          </div>
+          <div class="fx-col" style="width:140px;">
+            <label>Цвет</label>
+            <div class="fx-row">
+              <input id="FX_COLOR" type="color" value="#ff4d6d"/>
+              <input id="FX_COLOR_TXT" type="text" value="#ff4d6d" style="flex:1;"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="fx-row">
+          <div class="fx-col" style="flex:1;">
+            <label>Задание (пример)</label>
+            <input id="FX_PROMPT" type="text" placeholder="Например: 3 × 4 = ?" />
+          </div>
+          <div class="fx-col" style="width:140px;">
+            <label>Правильный ответ</label>
+            <input id="FX_ANSWER" type="text" placeholder="Напр: 12" />
+          </div>
+        </div>
+
+        <div class="fx-row" style="align-items:center;">
+          <button class="fx-btn primary" id="FX_ADD">Добавить область</button>
+          <button class="fx-btn" id="FX_UNDO">Отменить точку</button>
+          <button class="fx-btn" id="FX_CLEAR">Очистить обводку</button>
+          <button class="fx-btn danger" id="FX_DELETE" disabled>Удалить выбранную</button>
+        </div>
+
+        <div class="fx-hint">
+          <b>Как обводить:</b> кликай по картинке, ставя точки по контуру области. <br/>
+          <b>Замкнуть</b> — кликни по первой точке или нажми <span class="fx-kbd">Enter</span>. <br/>
+          Отмена точки: <span class="fx-kbd">Backspace</span>. Отмена обводки: <span class="fx-kbd">Esc</span>.
+        </div>
+
+        <div class="fx-feedback" id="FX_FB">
+          <span id="FX_FB_TXT">Загрузи картинку и начни обводить.</span>
+          <small id="FX_FB_HINT"></small>
+        </div>
+      </div>
+
+      <div>
+        <div class="fx-row" style="justify-content:space-between;">
+          <label>3) Список областей</label>
+          <span class="fx-pill" id="FX_SELECTED">не выбрано</span>
+        </div>
+        <div class="fx-list" id="FX_LIST"></div>
+      </div>
+
+      
+      <div class="fx-card" style="padding:12px;background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.10);">
+        <div class="fx-row" style="align-items:center;">
+          <button class="fx-btn primary" id="FX_EXPORT">Сформировать код для Genially</button>
+          <button class="fx-btn" id="FX_COPY_CODE" disabled>Скопировать код</button>
+        </div>
+
+        <label style="margin-top:8px;">Код игры (вставляй в Genially как HTML/iframe-код)</label>
+        <textarea id="FX_CODE" readonly placeholder="Нажми “Сформировать код…”"></textarea>
+
+        <div class="fx-hint" style="margin-top:10px;">
+          Если Genially просит <b>ссылку</b> (URL), тогда публикуй игру на GitHub Pages и используй iframe ниже.
+        </div>
+
+        <div class="fx-row" style="align-items:center; margin-top:8px;">
+          <button class="fx-btn" id="FX_COPY_IFRAME" disabled>Скопировать iframe</button>
+        </div>
+        <label style="margin-top:8px;">iframe (для варианта с GitHub Pages)</label>
+        <textarea id="FX_IFRAME" readonly placeholder="Появится после генерации кода…"></textarea>
+      </div>
+
+
+  <script>
+    /* ==========================================================
+      EDITOR STATE
+    ========================================================== */
+    const $ = (s) => document.querySelector(s);
+
+    const els = {
+      file: $("#FX_FILE"),
+      fit: $("#FX_FIT"),
+      imgOp: $("#FX_IMG_OP"),
+      showNums: $("#FX_SHOW_NUMS"),
+
+      num: $("#FX_NUM"),
+      color: $("#FX_COLOR"),
+      colorTxt: $("#FX_COLOR_TXT"),
+      prompt: $("#FX_PROMPT"),
+      answer: $("#FX_ANSWER"),
+
+      add: $("#FX_ADD"),
+      undo: $("#FX_UNDO"),
+      clear: $("#FX_CLEAR"),
+      del: $("#FX_DELETE"),
+
+      list: $("#FX_LIST"),
+      counts: $("#FX_COUNTS"),
+      selected: $("#FX_SELECTED"),
+
+      fb: $("#FX_FB"),
+      fbTxt: $("#FX_FB_TXT"),
+      fbHint: $("#FX_FB_HINT"),
+
+      exportBtn: $("#FX_EXPORT"),
+      iframe: $("#FX_IFRAME"),
+      copyCodeBtn: $("#FX_COPY_CODE"),
+      copyIframeBtn: $("#FX_COPY_IFRAME"),
+      code: $("#FX_CODE"),
+
+      stage: $("#FX_STAGE"),
+      canvas: $("#FX_CANVAS"),
+      draw: $("#FX_DRAW"),
+      pts: $("#FX_PTS"),
+      zoom: $("#FX_ZOOM"),
+    };
+
+    const ctx = els.canvas.getContext("2d");
+    const dctx = els.draw.getContext("2d");
+
+    const state = {
+      img: null,
+      imgUrl: "",
+      imgW: 0,
+      imgH: 0,
+
+      view: { x: 0, y: 0, scale: 1 },
+      dragging: false,
+      dragStart: { x: 0, y: 0, vx: 0, vy: 0 },
+
+      // current polygon points in image coords
+      current: [],
+      hoverFirst: false,
+
+      // regions [{id,num,color,prompt,answer,points:[{x,y}]}]
+      regions: [],
+      selectedId: null,
+
+      showNumbers: true,
+      imgOpacity: 1,
+    };
+
+    function uid(){
+      return "R" + Math.random().toString(16).slice(2,10);
+    }
+
+    function setFB(type, text, hint){
+      els.fb.classList.remove("ok","err");
+      if (type === "ok") els.fb.classList.add("ok");
+      if (type === "err") els.fb.classList.add("err");
+      els.fbTxt.textContent = text || "";
+      els.fbHint.textContent = hint || "";
+    }
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+
+    function resizeCanvases(){
+      const r = els.stage.getBoundingClientRect();
+      const w = Math.max(320, Math.floor(r.width));
+      const h = Math.max(320, Math.floor(r.height));
+      [els.canvas, els.draw].forEach(c => { c.width = w; c.height = h; c.style.width = w + "px"; c.style.height = h + "px"; });
+      drawAll();
+    }
+
+    window.addEventListener("resize", resizeCanvases);
+
+    function imgToScreen(pt){
+      return {
+        x: (pt.x * state.view.scale) + state.view.x,
+        y: (pt.y * state.view.scale) + state.view.y
+      };
+    }
+    function screenToImg(pt){
+      return {
+        x: (pt.x - state.view.x) / state.view.scale,
+        y: (pt.y - state.view.y) / state.view.scale
+      };
+    }
+
+    function fitImage(){
+      if (!state.img) return;
+      const W = els.canvas.width, H = els.canvas.height;
+      const pad = 20;
+      const sx = (W - pad*2) / state.imgW;
+      const sy = (H - pad*2) / state.imgH;
+      const s = clamp(Math.min(sx, sy), 0.1, 6);
+      state.view.scale = s;
+      state.view.x = (W - state.imgW * s) / 2;
+      state.view.y = (H - state.imgH * s) / 2;
+      updateHUD();
+      drawAll();
+    }
+
+    function updateHUD(){
+      els.pts.textContent = String(state.current.length);
+      els.zoom.textContent = Math.round(state.view.scale * 100) + "%";
+      els.counts.textContent = state.regions.length + " областей";
+      els.selected.textContent = state.selectedId ? ("выбрано: " + state.selectedId) : "не выбрано";
+      els.del.disabled = !state.selectedId;
+    }
+
+    function pointNear(a, b, px){
+      const dx = a.x - b.x, dy = a.y - b.y;
+      return (dx*dx + dy*dy) <= (px*px);
+    }
+
+    function polygonContains(points, p){
+      // ray casting
+      let inside = false;
+      for (let i=0, j=points.length-1; i<points.length; j=i++){
+        const xi = points[i].x, yi = points[i].y;
+        const xj = points[j].x, yj = points[j].y;
+        const intersect = ((yi > p.y) !== (yj > p.y)) &&
+          (p.x < (xj - xi) * (p.y - yi) / ((yj - yi) || 1e-9) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function drawAll(){
+      ctx.clearRect(0,0,els.canvas.width, els.canvas.height);
+      dctx.clearRect(0,0,els.draw.width, els.draw.height);
+
+      // base image
+      if (state.img){
+        ctx.save();
+        ctx.globalAlpha = clamp(state.imgOpacity, 0, 1);
+        ctx.setTransform(state.view.scale, 0, 0, state.view.scale, state.view.x, state.view.y);
+        ctx.drawImage(state.img, 0, 0, state.imgW, state.imgH);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.fillStyle = "rgba(255,255,255,0.05)";
+        ctx.fillRect(0,0,els.canvas.width, els.canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,0.6)";
+        ctx.font = "900 16px system-ui,Segoe UI,Arial";
+        ctx.fillText("Загрузи картинку слева", 18, 34);
+        ctx.restore();
+      }
+
+      // regions overlay
+      ctx.save();
+      ctx.setTransform(state.view.scale, 0, 0, state.view.scale, state.view.x, state.view.y);
+      for (const r of state.regions){
+        if (r.points.length < 3) continue;
+        ctx.beginPath();
+        ctx.moveTo(r.points[0].x, r.points[0].y);
+        for (let i=1;i<r.points.length;i++) ctx.lineTo(r.points[i].x, r.points[i].y);
+        ctx.closePath();
+
+        // outline
+        ctx.lineWidth = 2 / state.view.scale;
+        ctx.strokeStyle = "rgba(255,255,255,0.45)";
+        ctx.stroke();
+
+        // subtle fill if selected
+        if (r.id === state.selectedId){
+          ctx.fillStyle = "rgba(255,255,255,0.08)";
+          ctx.fill();
+        }
+
+        // numbers
+        if (state.showNumbers && r.num){
+          // centroid-ish
+          let cx=0, cy=0;
+          for (const p of r.points){ cx += p.x; cy += p.y; }
+          cx /= r.points.length; cy /= r.points.length;
+          ctx.font = (26 / state.view.scale) + "px system-ui,Segoe UI,Arial";
+          ctx.font = "900 " + (26 / state.view.scale) + "px system-ui,Segoe UI,Arial";
+          ctx.fillStyle = "rgba(0,0,0,0.65)";
+          ctx.strokeStyle = "rgba(255,255,255,0.85)";
+          ctx.lineWidth = 6 / state.view.scale;
+          ctx.strokeText(String(r.num), cx, cy);
+          ctx.fillText(String(r.num), cx, cy);
+        }
+      }
+      ctx.restore();
+
+      // current drawing poly
+      dctx.save();
+      dctx.setTransform(state.view.scale, 0, 0, state.view.scale, state.view.x, state.view.y);
+
+      if (state.current.length){
+        dctx.beginPath();
+        dctx.moveTo(state.current[0].x, state.current[0].y);
+        for (let i=1;i<state.current.length;i++) dctx.lineTo(state.current[i].x, state.current[i].y);
+        dctx.lineWidth = 2 / state.view.scale;
+        dctx.strokeStyle = "rgba(120,240,190,0.95)";
+        dctx.stroke();
+
+        // points
+        for (let i=0;i<state.current.length;i++){
+          const p = state.current[i];
+          dctx.beginPath();
+          dctx.arc(p.x, p.y, 4 / state.view.scale, 0, Math.PI*2);
+          dctx.fillStyle = (i===0 && state.hoverFirst) ? "rgba(255,255,255,0.95)" : "rgba(120,240,190,0.95)";
+          dctx.fill();
+        }
+      }
+      dctx.restore();
+
+      updateHUD();
+    }
+
+    function rebuildList(){
+      els.list.innerHTML = "";
+      if (!state.regions.length){
+        const empty = document.createElement("div");
+        empty.style.padding = "12px";
+        empty.style.color = "rgba(255,255,255,0.65)";
+        empty.style.fontSize = "12px";
+        empty.textContent = "Пока нет областей. Обведи первую область и нажми “Добавить область”.";
+        els.list.appendChild(empty);
+        return;
+      }
+      for (const r of state.regions){
+        const item = document.createElement("div");
+        item.className = "fx-item";
+        item.dataset.id = r.id;
+
+        const dot = document.createElement("div");
+        dot.className = "fx-dot";
+        dot.style.background = r.color || "#ffffff";
+
+        const mid = document.createElement("div");
+        const s1 = document.createElement("strong");
+        s1.textContent = `${r.num || "—"} • ${r.prompt || "без задания"}`;
+        const s2 = document.createElement("div");
+        s2.innerHTML = `<span>ID: ${r.id} • Точек: ${r.points.length}</span>`;
+        mid.appendChild(s1);
+        mid.appendChild(s2);
+
+        const pill = document.createElement("div");
+        pill.className = "fx-pill";
+        pill.textContent = r.answer ? ("ответ: " + r.answer) : "без ответа";
+
+        item.append(dot, mid, pill);
+
+        item.addEventListener("click", () => {
+          state.selectedId = r.id;
+          // fill fields with selected
+          els.num.value = r.num || "";
+          els.color.value = r.color || "#ff4d6d";
+          els.colorTxt.value = r.color || "#ff4d6d";
+          els.prompt.value = r.prompt || "";
+          els.answer.value = r.answer || "";
+          setFB("", "Выбрана область. Можно удалить или поменять данные.", "");
+          drawAll();
+          rebuildList();
+        });
+
+        if (r.id === state.selectedId){
+          item.style.background = "rgba(255,255,255,0.06)";
+          item.style.outline = "2px solid rgba(120,240,190,0.25)";
+        }
+
+        els.list.appendChild(item);
+      }
+    }
+
+    function setColorFromTxt(){
+      const v = (els.colorTxt.value || "").trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)){
+        els.color.value = v;
+      }
+    }
+    function setTxtFromColor(){
+      els.colorTxt.value = els.color.value;
+    }
+
+    els.color.addEventListener("input", () => { setTxtFromColor(); });
+    els.colorTxt.addEventListener("input", () => { setColorFromTxt(); });
+
+    els.imgOp.addEventListener("input", () => {
+      state.imgOpacity = parseFloat(els.imgOp.value || "1");
+      drawAll();
+    });
+    els.showNums.addEventListener("change", () => {
+      state.showNumbers = els.showNums.value === "1";
+      drawAll();
+    });
+
+    // Load image
+    els.file.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+
+      // Cleanup old object url
+      if (state.imgUrl) { try{ URL.revokeObjectURL(state.imgUrl); }catch(_){} }
+
+      // For SVG we ensure it has explicit width/height so canvas can draw it consistently.
+      const isSvg = (f.type === "image/svg+xml") || /\.svg$/i.test(f.name || "");
+      let url = "";
+
+      if (isSvg) {
+        try{
+          const txt = await f.text();
+          // Try to infer size from viewBox if width/height missing
+          let fixed = txt;
+          const hasW = /\bwidth\s*=\s*["'][^"']+["']/.test(fixed);
+          const hasH = /\bheight\s*=\s*["'][^"']+["']/.test(fixed);
+          const vb = fixed.match(/\bviewBox\s*=\s*["']([\d.\s-]+)["']/i);
+          if ((!hasW || !hasH) && vb) {
+            const parts = vb[1].trim().split(/\s+/).map(Number);
+            if (parts.length === 4) {
+              const w = Math.max(1, parts[2]);
+              const h = Math.max(1, parts[3]);
+              // Inject width/height into the opening <svg ...>
+              fixed = fixed.replace(/<svg\b/i, `<svg width="${w}" height="${h}"`);
+            }
+          }
+          const blob = new Blob([fixed], {type:"image/svg+xml"});
+          url = URL.createObjectURL(blob);
+        }catch(err){
+          // fallback to normal object url
+          url = URL.createObjectURL(f);
+        }
+      } else {
+        url = URL.createObjectURL(f);
+      }
+
+      state.imgUrl = url;
+
+      const img = new Image();
+      img.onload = () => {
+        state.img = img;
+
+        // For some SVGs naturalWidth may still be 0; fallback to width/height attributes if present.
+        const nw = img.naturalWidth || img.width || 0;
+        const nh = img.naturalHeight || img.height || 0;
+
+        if (!nw || !nh) {
+          // Final fallback: assume a square size
+          state.imgW = 1000;
+          state.imgH = 1000;
+          setFB("ok", "Картинка загружена (размер определён приблизительно).", "Если масштаб странный — нажми “Подогнать”.");
+        } else {
+          state.imgW = nw;
+          state.imgH = nh;
+          setFB("ok", "Картинка загружена. Обводи области кликами.", "Совет: крупные области — быстрее.");
+        }
+
+        fitImage();
+      };
+      img.onerror = () => {
+        setFB("err", "Не удалось загрузить картинку.", "Попробуй другой файл (PNG/JPG/SVG).");
+      };
+      img.src = url;
+    });
+
+
+    els.fit.addEventListener("click", fitImage);
+
+    // Zoom & pan
+    els.stage.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const rect = els.stage.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      const before = screenToImg({x: mx, y: my});
+      const delta = -e.deltaY;
+      const factor = delta > 0 ? 1.08 : 0.92;
+      const next = clamp(state.view.scale * factor, 0.1, 12);
+
+      state.view.scale = next;
+      const after = imgToScreen(before);
+      // keep mouse position stable
+      state.view.x += (mx - after.x);
+      state.view.y += (my - after.y);
+
+      drawAll();
+    }, {passive:false});
+
+    els.stage.addEventListener("mousedown", (e) => {
+      // middle or right button for pan, or shift+left
+      if (e.button === 1 || e.button === 2 || (e.button === 0 && e.shiftKey)){
+        state.dragging = true;
+        state.dragStart.x = e.clientX;
+        state.dragStart.y = e.clientY;
+        state.dragStart.vx = state.view.x;
+        state.dragStart.vy = state.view.y;
+        return;
+      }
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (state.dragging){
+        const dx = e.clientX - state.dragStart.x;
+        const dy = e.clientY - state.dragStart.y;
+        state.view.x = state.dragStart.vx + dx;
+        state.view.y = state.dragStart.vy + dy;
+        drawAll();
+        return;
+      }
+      // hover first point
+      const rect = els.stage.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const ip = screenToImg({x: mx, y: my});
+      state.hoverFirst = false;
+      if (state.current.length){
+        const px = 10 / state.view.scale;
+        state.hoverFirst = pointNear(state.current[0], ip, px);
+      }
+      drawAll();
+    });
+    window.addEventListener("mouseup", () => { state.dragging = false; });
+    els.stage.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // Click to add point OR select region
+    els.stage.addEventListener("click", (e) => {
+      if (!state.img){
+        setFB("err", "Сначала загрузи картинку.", "");
+        return;
+      }
+      // if shift key used for pan, ignore click
+      if (e.shiftKey) return;
+
+      const rect = els.stage.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const ip = screenToImg({x: mx, y: my});
+
+      // if we are drawing: clicking near first point closes
+      if (state.current.length >= 3){
+        const px = 10 / state.view.scale;
+        if (pointNear(state.current[0], ip, px)){
+          closePolygon();
+          return;
+        }
+      }
+
+      // If not currently drawing any points, allow selecting a region by click
+      if (state.current.length === 0){
+        // find topmost region containing point (last wins)
+        let found = null;
+        for (let i=state.regions.length-1;i>=0;i--){
+          const r = state.regions[i];
+          if (r.points.length>=3 && polygonContains(r.points, ip)){
+            found = r; break;
+          }
+        }
+        if (found){
+          state.selectedId = found.id;
+          els.num.value = found.num || "";
+          els.color.value = found.color || "#ff4d6d";
+          els.colorTxt.value = found.color || "#ff4d6d";
+          els.prompt.value = found.prompt || "";
+          els.answer.value = found.answer || "";
+          setFB("", "Выбрана область кликом. Можно удалить или менять поля.", "");
+          rebuildList();
+          drawAll();
+          return;
+        }
+      }
+
+      // add point
+      state.current.push({x: ip.x, y: ip.y});
+      setFB("", "Ставь точки по контуру. Enter — замкнуть.", "");
+      drawAll();
+    });
+
+    function closePolygon(){
+      if (state.current.length < 3){
+        setFB("err", "Нужно минимум 3 точки.", "");
+        return;
+      }
+      setFB("ok", "Контур замкнут. Теперь нажми “Добавить область”.", "");
+      drawAll();
+    }
+
+    function clearCurrent(){
+      state.current = [];
+      state.hoverFirst = false;
+      drawAll();
+    }
+
+    function undoPoint(){
+      if (state.current.length){
+        state.current.pop();
+        drawAll();
+      }
+    }
+
+    els.undo.addEventListener("click", undoPoint);
+    els.clear.addEventListener("click", () => { clearCurrent(); setFB("", "Обводка очищена.", ""); });
+
+    // Keyboard
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape"){
+        clearCurrent();
+        setFB("", "Обводка очищена (Esc).", "");
+      }
+      if (e.key === "Backspace"){
+        if (document.activeElement && ["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+        e.preventDefault();
+        undoPoint();
+      }
+      if (e.key === "Enter"){
+        if (document.activeElement && ["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+        if (state.current.length >= 3){
+          closePolygon();
+        }
+      }
+      if (e.key === "Delete"){
+        if (state.selectedId) deleteSelected();
+      }
+    });
+
+    function validateRegionFields(){
+      const num = (els.num.value || "").trim();
+      const color = (els.color.value || "").trim();
+      const prompt = (els.prompt.value || "").trim();
+      const answer = (els.answer.value || "").trim();
+
+      if (!num){
+        return {ok:false, msg:"Заполни “Ответ-номер” (что написано на области)."};
+      }
+      if (!/^#[0-9a-fA-F]{6}$/.test(color)){
+        return {ok:false, msg:"Цвет должен быть в формате #RRGGBB."};
+      }
+      // prompt/answer can be empty if you want a free coloring, but usually present:
+      if (!prompt){
+        return {ok:false, msg:"Заполни “Задание (пример)”."};
+      }
+      if (!answer){
+        return {ok:false, msg:"Заполни “Правильный ответ”."};
+      }
+      return {ok:true, num, color, prompt, answer};
+    }
+
+    function addRegion(){
+      if (!state.img){
+        setFB("err", "Сначала загрузи картинку.", "");
+        return;
+      }
+      if (state.current.length < 3){
+        setFB("err", "Сначала обведи область (минимум 3 точки).", "");
+        return;
+      }
+      const v = validateRegionFields();
+      if (!v.ok){
+        setFB("err", v.msg, "");
+        return;
+      }
+
+      const r = {
+        id: uid(),
+        num: v.num,
+        color: v.color,
+        prompt: v.prompt,
+        answer: v.answer,
+        points: state.current.map(p => ({x: +p.x.toFixed(2), y: +p.y.toFixed(2)})),
+      };
+      state.regions.push(r);
+      state.selectedId = r.id;
+
+      clearCurrent();
+      rebuildList();
+      setFB("ok", "Область добавлена ✅", "Теперь можешь обвести следующую область.");
+      updateHUD();
+      drawAll();
+    }
+
+    els.add.addEventListener("click", addRegion);
+
+    function deleteSelected(){
+      const id = state.selectedId;
+      if (!id) return;
+      const idx = state.regions.findIndex(r => r.id === id);
+      if (idx >= 0){
+        state.regions.splice(idx, 1);
+        state.selectedId = null;
+        rebuildList();
+        drawAll();
+        setFB("", "Область удалена.", "");
+      }
+      updateHUD();
+    }
+
+    els.del.addEventListener("click", deleteSelected);
+
+    // Export: build self-contained HTML with embedded image as dataURL (from loaded object URL)
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    }
+
+    function pointsToSvg(points){
+      return points.map(p => `${p.x},${p.y}`).join(" ");
+    }
+
+    async function urlToDataURL(url){
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return await new Promise((resolve) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.readAsDataURL(blob);
+      });
+    }
+
+    function buildGameHtml(data){
+      // data: {imageDataUrl, w,h, regions[], showNumbers}
+      // We'll render as SVG with <image> background + polygons for regions.
+      const svgW = Math.max(1, Math.round(data.w));
+      const svgH = Math.max(1, Math.round(data.h));
+      const regions = data.regions;
+
+      const numberToColor = {};
+      const tasks = [];
+
+      regions.forEach((r, i) => {
+        numberToColor[String(r.num)] = r.color;
+        tasks.push({
+          id: "T" + (i+1),
+          prompt: r.prompt,
+          answer: String(r.answer),
+          num: String(r.num)
+        });
+      });
+
+      const svg = `
+<svg class="fx-map" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Раскраска">
+  <defs>
+    <filter id="fxGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <style>
+      .fx-sector{ cursor:pointer; fill: rgba(255,255,255,0.02); stroke: rgba(255,255,255,0.22); stroke-width: 2; vector-effect: non-scaling-stroke; }
+      .fx-sector.fx-locked{ opacity:.55; cursor:not-allowed; }
+      .fx-sector:hover{ filter: drop-shadow(0 0 10px rgba(255,255,255,0.22)); }
+      .fx-label{ font: 900 26px system-ui,Segoe UI,Arial; fill: rgba(255,255,255,0.92); paint-order: stroke; stroke: rgba(0,0,0,0.38); stroke-width: 5; pointer-events:none; user-select:none; }
+    </style>
+  </defs>
+
+  <image href="${data.imageDataUrl}" x="0" y="0" width="${svgW}" height="${svgH}" opacity="1" preserveAspectRatio="xMidYMid meet"/>
+  <g id="FX_SECTORS">
+    ${regions.map(r => `<polygon class="fx-sector" data-num="${escapeHtml(r.num)}" points="${pointsToSvg(r.points)}"></polygon>`).join("\n    ")}
+  </g>
+  <g id="FX_LABELS" style="display:${data.showNumbers ? "block" : "none"}">
+    ${regions.map(r => {
+        let cx=0, cy=0;
+        r.points.forEach(p => { cx+=p.x; cy+=p.y; });
+        cx/=r.points.length; cy/=r.points.length;
+        return `<text class="fx-label" x="${cx.toFixed(1)}" y="${cy.toFixed(1)}" text-anchor="middle">${escapeHtml(r.num)}</text>`;
+      }).join("\n    ")}
+  </g>
+</svg>`.trim();
+
+      const gameHtml = `<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Раскраска по ответам</title>
+</head>
+<body style="margin:0;background:transparent;">
+<div id="FX_ROOT">
+  <style>
+    #FX_ROOT{
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --bg: rgba(255,255,255,0.06);
+      --card: rgba(0,0,0,0.18);
+      --line: rgba(255,255,255,0.12);
+      --text: rgba(255,255,255,0.94);
+      --muted: rgba(255,255,255,0.72);
+      --ok: rgba(120,240,190,0.95);
+      --err: rgba(255,120,120,0.92);
+    }
+    #FX_APP{
+      width: 100%;
+      height: 100vh;
+      box-sizing: border-box;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      background: var(--bg);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      overflow: hidden;
+    }
+    .fx-panel{
+      display:flex; flex-direction:column; gap:10px;
+      padding:12px; border-radius:14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      overflow:hidden;
+      min-width: 280px;
+    }
+    .fx-stage{
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 22px 22px;
+
+      border-radius:14px;
+      background: rgba(0,0,0,0.12);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      position: relative;
+      overflow:hidden;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .fx-title{
+      font-weight: 950;
+      font-size: 16px;
+      color: var(--text);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .fx-sub{ font-size: 12px; color: var(--muted); line-height:1.35; margin-top:-4px; }
+    .fx-progress{
+      display:grid; grid-template-columns: 1fr auto;
+      align-items:center; gap:10px;
+      padding:10px; border-radius:12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .fx-bar{ height:10px; border-radius:999px; background: rgba(255,255,255,0.10); overflow:hidden; }
+    .fx-bar > i{ display:block; height:100%; width:0%; border-radius:999px; background: var(--ok); box-shadow: 0 0 12px rgba(120,240,190,0.5); transition: width 220ms ease; }
+    .fx-badge{
+      font-size: 12px; padding:6px 10px; border-radius:999px;
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.9); white-space:nowrap;
+    }
+    .fx-task{
+      padding:12px; border-radius:14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      display:grid; gap:8px;
+    }
+    .fx-question{ font-size: 18px; font-weight: 950; color: var(--text); letter-spacing: .2px; }
+    .fx-answer{ display:grid; grid-template-columns: 1fr auto; gap:8px; }
+    .fx-answer input{
+      width:100%; padding:12px 12px; border-radius:12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.18);
+      color: rgba(255,255,255,0.94);
+      outline:none; font-size:14px; box-sizing:border-box;
+    }
+    .fx-btn{
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.92);
+      padding:12px 12px; border-radius:12px;
+      cursor:pointer; font-weight: 950; font-size: 12px;
+      letter-spacing: .2px; user-select:none; white-space:nowrap;
+      transition: transform 120ms ease, background 120ms ease;
+    }
+    .fx-btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.10); }
+    .fx-btn:active{ transform: translateY(0px) scale(0.99); }
+    .fx-btn.primary{
+      background: rgba(120,240,190,0.18);
+      border-color: rgba(120,240,190,0.30);
+      box-shadow: 0 0 14px rgba(120,240,190,0.20);
+    }
+    .fx-feedback{
+      min-height: 18px; font-size: 13px;
+      color: rgba(255,255,255,0.92);
+      padding:10px; border-radius:12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+    }
+    .fx-feedback small{ color: rgba(255,255,255,0.65); font-size:12px; }
+    .fx-feedback.ok{ border-color: rgba(120,240,190,0.35); box-shadow: 0 0 0 2px rgba(120,240,190,0.12) inset; }
+    .fx-feedback.err{ border-color: rgba(255,120,120,0.35); box-shadow: 0 0 0 2px rgba(255,120,120,0.12) inset; }
+    .fx-palette{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      padding:10px; border-radius:12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .fx-swatch{
+      width:18px; height:18px; border-radius:6px;
+      border: 1px solid rgba(255,255,255,0.25);
+      opacity: .35; filter: grayscale(.4);
+      transition: opacity 160ms ease, transform 160ms ease, filter 160ms ease;
+    }
+    .fx-swatch.on{ opacity: 1; filter:none; transform: translateY(-1px); }
+    .fx-svg-wrap{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:10px; box-sizing:border-box; }
+    svg.fx-map{ width:100%; height:100%; max-height: 860px; display:block; }
+
+    .fx-final{
+      position:absolute; inset:0; display:none;
+      align-items:center; justify-content:center; padding:18px;
+      background: rgba(0,0,0,0.58);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+    .fx-final.show{ display:flex; }
+    .fx-final-card{
+      width:min(520px,96%);
+      border-radius:16px;
+      background: rgba(20,20,20,0.75);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.45);
+      padding:16px;
+      color: rgba(255,255,255,0.95);
+      text-align:center;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .fx-final-card h3{ margin:0; font-size:20px; }
+    .fx-final-card p{ margin:0; color: rgba(255,255,255,0.78); }
+    .fx-row{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+    @media (max-width: 860px){
+      #FX_APP{ grid-template-columns: 1fr; height: 100vh; }
+      .fx-stage{
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 22px 22px;
+ min-height: 340px; }
+    }
+  </style>
+
+  <div id="FX_APP" aria-label="Раскраска по ответам">
+    <div class="fx-panel">
+      <div class="fx-title">
+        <span>Раскраска по ответам</span>
+        <span class="fx-badge" id="FX_PROGRESS_TXT">0/0</span>
+      </div>
+      <div class="fx-sub">Решай пример → открывай число → кликай по области с этим числом.</div>
+
+      <div class="fx-progress">
+        <div class="fx-bar"><i id="FX_BAR"></i></div>
+        <div class="fx-badge" id="FX_UNLOCK_TXT">Открыто: 0</div>
+      </div>
+
+      <div class="fx-task">
+        <div class="fx-question" id="FX_Q">—</div>
+        <div class="fx-answer">
+          <input id="FX_INPUT" type="text" inputmode="numeric" placeholder="Ответ…" autocomplete="off" />
+          <button class="fx-btn primary" id="FX_CHECK">Проверить</button>
+        </div>
+        <div class="fx-feedback" id="FX_FB" aria-live="polite">
+          <span id="FX_FB_TXT">Введи ответ.</span>
+          <small id="FX_FB_HINT"></small>
+        </div>
+      </div>
+
+      <div class="fx-palette" id="FX_PAL" aria-label="Открытые цвета"></div>
+
+      <div class="fx-row">
+        <button class="fx-btn" id="FX_RESET">Сброс</button>
+        <button class="fx-btn" id="FX_TOGGLE_NUMS">${data.showNumbers ? "Скрыть числа" : "Показать числа"}</button>
+      </div>
+    </div>
+
+    <div class="fx-stage">
+      <div class="fx-svg-wrap" id="FX_SVG_WRAP"></div>
+
+      <div class="fx-final" id="FX_FINAL">
+        <div class="fx-final-card">
+          <h3>Готово! Отлично 🎉</h3>
+          <p>Все области раскрашены.</p>
+          <div class="fx-row">
+            <button class="fx-btn primary" id="FX_RESTART">Пройти ещё раз</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      svg: ${JSON.stringify(svg)},
+      tasks: ${JSON.stringify(tasks)},
+      numberToColor: ${JSON.stringify(numberToColor)},
+      behavior: { allowRecolor: false, trimSpaces: true, showNumbers: ${data.showNumbers ? "true" : "false"} }
+    };
+
+    (function(){
+      const svgWrap = document.getElementById("FX_SVG_WRAP");
+      const qEl = document.getElementById("FX_Q");
+      const inputEl = document.getElementById("FX_INPUT");
+      const checkBtn = document.getElementById("FX_CHECK");
+      const resetBtn = document.getElementById("FX_RESET");
+      const barEl = document.getElementById("FX_BAR");
+      const progressTxt = document.getElementById("FX_PROGRESS_TXT");
+      const unlockTxt = document.getElementById("FX_UNLOCK_TXT");
+      const palEl = document.getElementById("FX_PAL");
+      const fb = document.getElementById("FX_FB");
+      const fbTxt = document.getElementById("FX_FB_TXT");
+      const fbHint = document.getElementById("FX_FB_HINT");
+      const final = document.getElementById("FX_FINAL");
+      const restartBtn = document.getElementById("FX_RESTART");
+      const toggleNumsBtn = document.getElementById("FX_TOGGLE_NUMS");
+
+      const state = { idx: 0, unlocked: new Set(), total: 0, showNumbers: CONFIG.behavior.showNumbers };
+
+      function setFB(type, text, hint){
+        fb.classList.remove("ok","err");
+        if (type==="ok") fb.classList.add("ok");
+        if (type==="err") fb.classList.add("err");
+        fbTxt.textContent = text || "";
+        fbHint.textContent = hint || "";
+      }
+      function norm(v){
+        v = String(v ?? "");
+        if (CONFIG.behavior.trimSpaces) v = v.trim();
+        return v.replace(",", ".");
+      }
+      function renderPalette(){
+        palEl.innerHTML = "";
+        Object.keys(CONFIG.numberToColor).forEach(num => {
+          const sw = document.createElement("div");
+          sw.className = "fx-swatch" + (state.unlocked.has(num) ? " on" : "");
+          sw.style.background = CONFIG.numberToColor[num] || "#fff";
+          sw.title = (state.unlocked.has(num) ? "Открыто: " : "Закрыто: ") + num;
+          palEl.appendChild(sw);
+        });
+        unlockTxt.textContent = "Открыто: " + state.unlocked.size;
+      }
+      function updateLocks(){
+        const svg = svgWrap.querySelector("svg");
+        if (!svg) return;
+        svg.querySelectorAll(".fx-sector").forEach(el => {
+          const num = String(el.getAttribute("data-num") || "");
+          el.classList.toggle("fx-locked", !state.unlocked.has(num));
+        });
+      }
+      function updateProgress(){
+        const svg = svgWrap.querySelector("svg");
+        const sectors = svg ? Array.from(svg.querySelectorAll(".fx-sector")) : [];
+        const filled = svg ? svg.querySelectorAll(".fx-sector.fx-filled").length : 0;
+        state.total = sectors.length;
+        const pct = state.total ? Math.round((filled / state.total) * 100) : 0;
+        barEl.style.width = pct + "%";
+        progressTxt.textContent = filled + "/" + state.total;
+        if (state.total && filled === state.total) final.classList.add("show");
+      }
+      function showTask(){
+        const t = CONFIG.tasks[state.idx];
+        if (!t){
+          qEl.textContent = "Докрась оставшееся";
+          setFB("", "Все примеры решены. Докрась оставшиеся области.", "");
+          return;
+        }
+        qEl.textContent = t.prompt;
+        inputEl.value = "";
+        inputEl.focus();
+        setFB("", "Введи ответ и нажми «Проверить».", "");
+      }
+      function onCheck(){
+        const t = CONFIG.tasks[state.idx];
+        if (!t) return;
+        const user = norm(inputEl.value);
+        const right = norm(t.answer);
+        if (user === right){
+          const num = String(t.num);
+          state.unlocked.add(num);
+          renderPalette();
+          updateLocks();
+          setFB("ok", "Верно! Открыто число " + num + " ✅", "Теперь кликай область с числом " + num + ".");
+          state.idx += 1;
+          showTask();
+        } else {
+          setFB("err", "Почти! Проверь ответ.", "");
+        }
+      }
+      function onSectorClick(el){
+        const num = String(el.getAttribute("data-num") || "");
+        if (!state.unlocked.has(num)){
+          setFB("err", "Сначала открой число.", "Реши пример, чтобы открыть " + num + ".");
+          return;
+        }
+        if (el.classList.contains("fx-filled") && !CONFIG.behavior.allowRecolor){
+          setFB("", "Уже раскрашено.", "");
+          return;
+        }
+        const color = CONFIG.numberToColor[num] || "#ffffff";
+        el.classList.add("fx-filled");
+        el.style.fill = color;
+        el.style.filter = "url(#fxGlow)";
+        setFB("ok", "Сектор раскрашен!", "Число: " + num);
+        updateProgress();
+      }
+      function build(){
+        svgWrap.innerHTML = CONFIG.svg;
+        const svg = svgWrap.querySelector("svg");
+        if (!svg){
+          setFB("err","SVG не загрузился.","");
+          return;
+        }
+        const labels = svg.querySelector("#FX_LABELS");
+        if (labels) labels.style.display = state.showNumbers ? "block" : "none";
+        svg.querySelectorAll(".fx-sector").forEach(el => {
+          el.classList.add("fx-locked");
+          el.addEventListener("click", () => onSectorClick(el));
+        });
+        renderPalette();
+        updateLocks();
+        updateProgress();
+        showTask();
+      }
+      function resetAll(){
+        final.classList.remove("show");
+        state.idx = 0;
+        state.unlocked = new Set();
+        renderPalette();
+
+        const svg = svgWrap.querySelector("svg");
+        if (svg){
+          svg.querySelectorAll(".fx-sector").forEach(el => {
+            el.classList.remove("fx-filled");
+            el.style.fill = "rgba(255,255,255,0.02)";
+            el.style.filter = "";
+          });
+        }
+        updateLocks();
+        updateProgress();
+        showTask();
+        setFB("", "Сброшено. Поехали заново!", "");
+      }
+      function toggleNums(){
+        state.showNumbers = !state.showNumbers;
+        const svg = svgWrap.querySelector("svg");
+        const labels = svg ? svg.querySelector("#FX_LABELS") : null;
+        if (labels) labels.style.display = state.showNumbers ? "block" : "none";
+        toggleNumsBtn.textContent = state.showNumbers ? "Скрыть числа" : "Показать числа";
+      }
+
+      checkBtn.addEventListener("click", onCheck);
+      inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") onCheck(); });
+      resetBtn.addEventListener("click", resetAll);
+      restartBtn.addEventListener("click", resetAll);
+      toggleNumsBtn.addEventListener("click", toggleNums);
+
+      build();
+    })();
+  </script>
+</div>
+</body>
+</html>`;
+
+      return { gameHtml, tasks, numberToColor };
+    }
+
+    function downloadText(filename, text){
+      const blob = new Blob([text], {type:"text/html;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function isSafeForExport(){
+      if (!state.img) return {ok:false, msg:"Загрузи картинку."};
+      if (!state.regions.length) return {ok:false, msg:"Добавь хотя бы 1 область."};
+      // validate regions
+      for (const r of state.regions){
+        if (!r.num || !r.color || !r.prompt || !r.answer || !r.points || r.points.length<3){
+          return {ok:false, msg:"В одной из областей не заполнены данные или мало точек."};
+        }
+      }
+      return {ok:true};
+    }
+
+    els.exportBtn.addEventListener("click", async () => {
+      const ok = isSafeForExport();
+      if (!ok.ok){
+        setFB("err", ok.msg, "");
+        return;
+      }
+
+      setFB("", "Формирую HTML…", "Картинка будет встроена внутрь файла.");
+
+      try{
+        const imgDataUrl = await urlToDataURL(state.imgUrl);
+        const payload = {
+          imageDataUrl: imgDataUrl,
+          w: state.imgW,
+          h: state.imgH,
+          regions: state.regions,
+          showNumbers: els.showNums.value === "1"
+        };
+        const {gameHtml} = buildGameHtml(payload);
+        const fname = "paint_by_answers_genially.html";
+        // Положим код в поле для копирования (механика как в твоём другом редакторе)
+        els.code.value = gameHtml;
+        els.copyCodeBtn.disabled = false;
+
+        // iframe-шаблон на случай GitHub Pages/хостинга
+        const iframe = `<iframe src="PASTE_YOUR_HOSTED_URL_HERE" style="width:100%;height:650px;border:0;" loading="lazy" allowfullscreen></iframe>`;
+        els.iframe.value = iframe;
+        els.copyIframeBtn.disabled = false;
+
+        setFB("ok", "Код сформирован ✅", "Нажми “Скопировать код” и вставь в Genially.");
+}catch(e){
+        setFB("err", "Не удалось экспортировать.", String(e && e.message ? e.message : e));
+      }
+    });
+
+    els.copyCodeBtn.addEventListener("click", async () => {
+      const t = els.code.value || "";
+      if (!t.trim()) return;
+      try{
+        await navigator.clipboard.writeText(t);
+        setFB("ok", "Код скопирован ✅", "Вставь в Genially.");
+      }catch(e){
+        els.code.focus();
+        els.code.select();
+        document.execCommand("copy");
+        setFB("ok", "Код скопирован ✅", "Вставь в Genially.");
+      }
+    });
+
+    els.copyIframeBtn.addEventListener("click", async () => {
+      const t = els.iframe.value || "";
+      if (!t.trim()) return;
+      try{
+        await navigator.clipboard.writeText(t);
+        setFB("ok", "iframe скопирован ✅", "");
+      }catch(e){
+        els.iframe.focus();
+        els.iframe.select();
+        document.execCommand("copy");
+        setFB("ok", "iframe скопирован ✅", "");
+      }
+    });
+// init
+    resizeCanvases();
+    state.imgOpacity = parseFloat(els.imgOp.value || "1");
+    state.showNumbers = els.showNums.value === "1";
+    rebuildList();
+    updateHUD();
+  </script>
+</div>
+</body>
+</html>
